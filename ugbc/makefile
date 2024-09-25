@@ -798,7 +798,7 @@ paths-test:
 	@mkdir -p exe-test
 
 compiler: $(LIBXML2) $(OBJS)
-	@$(CC) $(LFLAGS) $^ -o exe/ugbc.$(target)$(UGBCEXESUFFIX) $(LIBS)
+	@$(CC) $(LFLAGS) $^ -o exe/ugbc.$(target)$(UGBCEXESUFFIX) $(LIBS) -L../../mame/build/mingw-clang/bin/x64/Debug -ldbginfo
 	
 objs.$(target)/%.o: %.c src-generated/ugbc.yy.c src-generated/ugbc.tab.c src-generated/ugbc.embed.yy.c src-generated/ugbc.embed.tab.c src-generated/modules_$(target).c
 	@mkdir -p $(dir $@)
