@@ -10407,7 +10407,7 @@ int main( int _argc, char *_argv[] ) {
     _environment->outputFileType = OUTPUT_FILE_TYPE_PRG;
 #endif
 
-    while ((opt = getopt(_argc, _argv, "1a:A:b:c:C:dD:Ee:G:Ii:l:L:o:O:p:P:q:R:st:T:VvWX:")) != -1) {
+    while ((opt = getopt(_argc, _argv, "1aA:b:c:C:dD:Ee:G:Ii:l:L:m:o:O:p:P:q:R:st:T:VvWX:")) != -1) {
         switch (opt) {
                 case 'a':
                     if ( ! _environment->listingFileName ) {
@@ -10523,6 +10523,9 @@ int main( int _argc, char *_argv[] ) {
                         } 
                         _environment->listingFileName = p;
                     }
+                    break;
+                case 'm':
+                    _environment->mameDebugInfoFileName = strdup(optarg);
                     break;
                 case 'W':
                     _environment->warningsEnabled = 1;

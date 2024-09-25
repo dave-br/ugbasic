@@ -1965,6 +1965,11 @@ typedef struct _Environment {
     char * additionalInfoFileName;
 
     /**
+     * Filename to create with MAME debugging information
+     */
+    char * mameDebugInfoFileName;
+
+    /**
      * TemporaryPath 
      */
     char * temporaryPath;
