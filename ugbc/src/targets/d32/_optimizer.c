@@ -2140,6 +2140,8 @@ void target_finalize( Environment * _environment ) {
         POBuffer bufferBytes = TMP_BUF;
 
         int sourceLine = -1;
+		void * mdi = NULL;
+		int lastAddressRead = (unsigned short) -1;
 
         _environment->currentSourceLineAnalyzed = 0;
         _environment->bytesProduced = 0;
@@ -2158,7 +2160,8 @@ void target_finalize( Environment * _environment ) {
             exit(-1);
         }            
 
-		mame_mdi_simp_open_new(_environment->mameDebugInfoFileName);
+		mdi = mame_mdi_simp_open_new(_environment->mameDebugInfoFileName);
+		mame_mdi_simp_add_source_file_path(mdi, _environment->sourceFileName);
         
         while( !feof(fileAsm) && !feof(fileListing)) {
 
@@ -2172,10 +2175,22 @@ void target_finalize( Environment * _environment ) {
                     if ( ( sourceLine != _environment->currentSourceLineAnalyzed ) ) {
                         adiline2( "AB:0:%d:%d", 
                             _environment->currentSourceLineAnalyzed, _environment->bytesProduced );
-                        _environment->currentSourceLineAnalyzed = sourceLine;
-                        _environment->bytesProduced = 0;
-                    }
-                }
+
+						if (_environment->currentSourceLineAnalyzed > 0 &&
+							_environment->bytesProduced > 0)
+						{
+							mame_mdi_simp_add_line_mapping(
+								mdi, 
+								lastAddressRead, 
+								lastAddressRead + _environment->bytesProduced - 1, 
+								0 /* source_file_index */, 
+								(unsigned int) _environment->currentSourceLineAnalyzed);
+						}
+						_environment->currentSourceLineAnalyzed = sourceLine;
+						_environment->bytesProduced = 0;
+					}
+					lastAddressRead = (unsigned short) -1;
+				}
                 continue;
             }
 
@@ -2201,6 +2216,10 @@ void target_finalize( Environment * _environment ) {
 
                 if ( po_buf_match( bufferListing, "* * *", bufferAddress, bufferBytes, bufferVersion ) ) {
                     if ( bufferAddress->len == 4 ) {
+						if (lastAddressRead == (unsigned short) -1)
+						{
+							lastAddressRead = (unsigned short) strtol(bufferAddress->str, NULL, 16);
+						}
                         int i = 0;
                         for( i=0; i<bufferBytes->len; ++i ) {
                             if ( !isxdigit(bufferBytes->str[i]) )
@@ -2227,6 +2246,7 @@ void target_finalize( Environment * _environment ) {
         (void)fclose(fileListing);
         (void)fclose(fileAsm);
 
+		mame_mdi_simp_close(mdi);
     }
 
 }
