@@ -76,6 +76,8 @@
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "../../../../../mame/src/lib/dbginfo/dbginfo.h"
+
 /****************************************************************************
  * CODE SECTION 
  ****************************************************************************/
@@ -2155,6 +2157,8 @@ void target_finalize( Environment * _environment ) {
             perror(_environment->listingFileName);
             exit(-1);
         }            
+
+		mame_mdi_simp_open_new(_environment->mameDebugInfoFileName);
         
         while( !feof(fileAsm) && !feof(fileListing)) {
 
