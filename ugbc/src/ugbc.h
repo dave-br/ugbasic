@@ -3342,9 +3342,11 @@ int embed_scan_string (const char *);
             line = strtok( NULL, "\x0a" ); \
         } \
         free( tmp ); \
+        buffered_fwrite( ((Environment *)_environment), "; BEGIN_EMBED\n", sizeof("; BEGIN_EMBED\n")-1, 1, ((Environment *)_environment)->asmFile ); \
         buffered_fwrite( ((Environment *)_environment), parsed, strlen( parsed )-1, 1, ((Environment *)_environment)->asmFile ); \
         free( parsed ); \
         buffered_fputs( ((Environment *)_environment), "\n", ((Environment *)_environment)->asmFile ); \
+        buffered_fwrite( ((Environment *)_environment), "; END_EMBED\n", sizeof("; END_EMBED\n")-1, 1, ((Environment *)_environment)->asmFile ); \
     }
 
 #define outembeddeddef0(e) \

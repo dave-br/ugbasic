@@ -2163,36 +2163,59 @@ void target_finalize( Environment * _environment ) {
 		mdi = mame_mdi_simp_open_new(_environment->mameDebugInfoFileName);
 		mame_mdi_simp_add_source_file_path(mdi, _environment->sourceFileName);
         
-        while( !feof(fileAsm) && !feof(fileListing)) {
+        while( !feof(fileAsm) && !feof(fileListing))
+		{
 
             po_buf_fgets( bufferAsm, fileAsm );
             int leftPadding = po_buf_trim( bufferAsm );
 
-            if ( isAComment( bufferAsm ) ) {
+            if ( isAComment( bufferAsm ) ) 
+			{
+				int outputMapping = 0;
+				int wroteAB = 0;
                 POBuffer ln = TMP_BUF;
-                if (po_buf_match( bufferAsm, "; L:*", ln ) ) {
+                if (po_buf_match( bufferAsm, "; L:*", ln ) ) 
+				{
+					// lineCommentEncountered = 1;
                     sourceLine = atoi( ln->str );
-                    if ( ( sourceLine != _environment->currentSourceLineAnalyzed ) ) {
+                    if ( ( sourceLine != _environment->currentSourceLineAnalyzed ) ) 
+					{
                         adiline2( "AB:0:%d:%d", 
                             _environment->currentSourceLineAnalyzed, _environment->bytesProduced );
-
-						if (_environment->currentSourceLineAnalyzed > 0 &&
-							_environment->bytesProduced > 0)
-						{
-							mame_mdi_simp_add_line_mapping(
-								mdi, 
-								lastAddressRead, 
-								lastAddressRead + _environment->bytesProduced - 1, 
-								0 /* source_file_index */, 
-								(unsigned int) _environment->currentSourceLineAnalyzed);
-						}
-						_environment->currentSourceLineAnalyzed = sourceLine;
-						_environment->bytesProduced = 0;
+						outputMapping = 1;
+						wroteAB = 1;
 					}
-					lastAddressRead = (unsigned short) -1;
 				}
-                continue;
-            }
+				else if (po_buf_match( bufferAsm, "; BEGIN_EMBED"))
+				{
+					outputMapping = 1;
+				}
+				else if (po_buf_match( bufferAsm, "; END_EMBED"))
+				{
+					// TODO: last address read should become first address
+				}
+				if (outputMapping)
+				{
+					// TODO: keep track of 2 addresses, not 1
+					if (_environment->currentSourceLineAnalyzed > 0 &&
+						_environment->bytesProduced > 0)
+					{
+						mame_mdi_simp_add_line_mapping(
+							mdi, 
+							lastAddressRead, 
+							lastAddressRead + _environment->bytesProduced - 1, 
+							0 /* source_file_index */, 
+							(unsigned int) _environment->currentSourceLineAnalyzed);
+					}
+				}
+				if (wroteAB)
+				{
+					_environment->currentSourceLineAnalyzed = sourceLine;
+					_environment->bytesProduced = 0;
+				}
+				continue;
+				// TODO lastAddressRead = (unsigned short) -1;
+			}
 
             *bufferListing->str = 0;
             int pos = ftell( fileListing );
