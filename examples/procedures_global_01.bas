@@ -21,23 +21,23 @@ REM @include atari,atarixl,c128,c64,coco,coco3,d32,d64,coleco,sg1000,sc3000,pc12
 
    CLS
 
-   GLOBAL a, b
+   GLOBAL harry, sally
    
-   a = 6
-   b = 9
+   harry = 6
+   sally = 9
    
    PROCEDURE testProcedure1
-      a = a + 1
-      b = b + 1
+      harry = harry + 1
+      sally = sally + 1
    END PROC
    
    PROCEDURE testProcedure2
-      a = a + b
-      b = b + a
+      harry = harry + sally
+      sally = sally + harry
    END PROC
 
    testProcedure1[]
    testProcedure2[]
    
-   PRINT "a = ";a; " (should be 17)"
-   PRINT "b = ";b; " (should be 27)"
+   PRINT "harry = ";harry; " (should be 17)"
+   PRINT "sally = ";sally; " (should be 27)"

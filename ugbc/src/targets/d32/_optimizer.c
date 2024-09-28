@@ -2245,6 +2245,11 @@ void target_finalize( Environment * _environment ) {
 
                 if ( po_buf_match( bufferListing, "* * *", bufferAddress, bufferBytes, bufferVersion ) ) {
                     if ( bufferAddress->len == 4 ) {
+				        POBuffer bufferRealName = TMP_BUF;
+				        POBuffer bufferSize = TMP_BUF;
+				        POBuffer bufferUserName = TMP_BUF;
+
+						// Update speculative start & end addresses for the current source line
 						if (specStartAddr == (unsigned int) -1)
 						{
 							specStartAddr = (unsigned short) strtol(bufferAddress->str, NULL, 16);
@@ -2253,6 +2258,13 @@ void target_finalize( Environment * _environment ) {
 						{
 							specEndAddr = (unsigned short) strtol(bufferAddress->str, NULL, 16);
 						}
+
+						// Write symbol if this is a variable
+						if (po_buf_match(bufferListing, "* * * rzb * ; VARIABLE: *", bufferAddress, bufferBytes, bufferRealName, bufferSize, bufferUserName))
+						{
+							mame_mdi_simp_add_symbol(mdi, bufferUserName->str, (int) strtol(bufferAddress->str, NULL, 16));
+						}
+
                         int i = 0;
                         for( i=0; i<bufferBytes->len; ++i ) {
                             if ( !isxdigit(bufferBytes->str[i]) )

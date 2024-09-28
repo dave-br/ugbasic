@@ -61,7 +61,7 @@ static void variable_cleanup_entry_multibyte( Environment * _environment, Variab
                     if ( variable->memoryArea ) {
                         outhead2("%s equ $%4.4x", variable->realName, variable->absoluteAddress);
                     } else {
-                        outhead1("%s rzb 2", variable->realName);
+                        outhead2("%s rzb 2 ; VARIABLE: %s", variable->realName, variable->name);
                     }   
                     break;
                 case VT_DWORD:
