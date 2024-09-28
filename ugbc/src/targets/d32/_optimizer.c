@@ -2141,7 +2141,9 @@ void target_finalize( Environment * _environment ) {
 
         int sourceLine = -1;
 		void * mdi = NULL;
-		int lastAddressRead = (unsigned short) -1;
+		// int lastAddressRead = (unsigned short) -1;
+		unsigned int specStartAddr = (unsigned int) -1;
+		unsigned int specEndAddr = (unsigned int) -1;
 
         _environment->currentSourceLineAnalyzed = 0;
         _environment->bytesProduced = 0;
@@ -2192,7 +2194,8 @@ void target_finalize( Environment * _environment ) {
 				}
 				else if (po_buf_match( bufferAsm, "; END_EMBED"))
 				{
-					// TODO: last address read should become first address
+					specStartAddr = (unsigned int) -1;
+					specEndAddr = (unsigned int) -1;
 				}
 				if (outputMapping)
 				{
@@ -2202,10 +2205,14 @@ void target_finalize( Environment * _environment ) {
 					{
 						mame_mdi_simp_add_line_mapping(
 							mdi, 
-							lastAddressRead, 
-							lastAddressRead + _environment->bytesProduced - 1, 
+							(unsigned short) specStartAddr, 
+							((specEndAddr == (unsigned int) - 1) ?
+							   (unsigned short) specStartAddr :
+							   (unsigned short) specEndAddr - 1), 
 							0 /* source_file_index */, 
 							(unsigned int) _environment->currentSourceLineAnalyzed);
+						specStartAddr = (unsigned int) -1;
+						specEndAddr = (unsigned int) -1;
 					}
 				}
 				if (wroteAB)
@@ -2214,7 +2221,6 @@ void target_finalize( Environment * _environment ) {
 					_environment->bytesProduced = 0;
 				}
 				continue;
-				// TODO lastAddressRead = (unsigned short) -1;
 			}
 
             *bufferListing->str = 0;
@@ -2239,9 +2245,13 @@ void target_finalize( Environment * _environment ) {
 
                 if ( po_buf_match( bufferListing, "* * *", bufferAddress, bufferBytes, bufferVersion ) ) {
                     if ( bufferAddress->len == 4 ) {
-						if (lastAddressRead == (unsigned short) -1)
+						if (specStartAddr == (unsigned int) -1)
 						{
-							lastAddressRead = (unsigned short) strtol(bufferAddress->str, NULL, 16);
+							specStartAddr = (unsigned short) strtol(bufferAddress->str, NULL, 16);
+						}
+						else if (specEndAddr == (unsigned int) -1)
+						{
+							specEndAddr = (unsigned short) strtol(bufferAddress->str, NULL, 16);
 						}
                         int i = 0;
                         for( i=0; i<bufferBytes->len; ++i ) {
