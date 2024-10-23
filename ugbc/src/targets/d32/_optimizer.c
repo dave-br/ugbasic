@@ -2262,7 +2262,7 @@ void target_finalize( Environment * _environment ) {
 						// Write symbol if this is a variable
 						if (po_buf_match(bufferListing, "* * * rzb * ; VARIABLE: *", bufferAddress, bufferBytes, bufferRealName, bufferSize, bufferUserName))
 						{
-							mame_mdi_simp_add_symbol(mdi, bufferUserName->str, (int) strtol(bufferAddress->str, NULL, 16));
+							mame_mdi_simp_add_global_constant_symbol(mdi, bufferUserName->str, (int) strtol(bufferAddress->str, NULL, 16));
 						}
 
                         int i = 0;
