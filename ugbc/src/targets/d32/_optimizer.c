@@ -76,7 +76,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "../../../../../mame/src/lib/dbginfo/dbginfo.h"
+#include "../../../../../mame/src/lib/srcdbg/srcdbg_format_writer.h"
 
 /****************************************************************************
  * CODE SECTION 
@@ -2162,8 +2162,9 @@ void target_finalize( Environment * _environment ) {
             exit(-1);
         }            
 
-		mdi = mame_mdi_simp_open_new(_environment->mameDebugInfoFileName);
-		mame_mdi_simp_add_source_file_path(mdi, _environment->sourceFileName);
+		mame_srcdbg_simp_open_new(_environment->mameDebugInfoFileName, &mdi);
+		unsigned short file_idx;
+		mame_srcdbg_simp_add_source_file_path(mdi, _environment->sourceFileName, &file_idx);
         
         while( !feof(fileAsm) && !feof(fileListing))
 		{
@@ -2203,7 +2204,7 @@ void target_finalize( Environment * _environment ) {
 					if (_environment->currentSourceLineAnalyzed > 0 &&
 						_environment->bytesProduced > 0)
 					{
-						mame_mdi_simp_add_line_mapping(
+						mame_srcdbg_simp_add_line_mapping(
 							mdi, 
 							(unsigned short) specStartAddr, 
 							((specEndAddr == (unsigned int) - 1) ?
@@ -2262,7 +2263,7 @@ void target_finalize( Environment * _environment ) {
 						// Write symbol if this is a variable
 						if (po_buf_match(bufferListing, "* * * rzb * ; VARIABLE: *", bufferAddress, bufferBytes, bufferRealName, bufferSize, bufferUserName))
 						{
-							mame_mdi_simp_add_global_constant_symbol(mdi, bufferUserName->str, (int) strtol(bufferAddress->str, NULL, 16));
+							mame_srcdbg_simp_add_global_fixed_symbol(mdi, bufferUserName->str, (int) strtol(bufferAddress->str, NULL, 16));
 						}
 
                         int i = 0;
@@ -2291,7 +2292,7 @@ void target_finalize( Environment * _environment ) {
         (void)fclose(fileListing);
         (void)fclose(fileAsm);
 
-		mame_mdi_simp_close(mdi);
+		mame_srcdbg_simp_close(mdi);
     }
 
 }
