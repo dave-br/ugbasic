@@ -76,7 +76,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "../../../../../mame/src/lib/srcdbg/srcdbg_format_writer.h"
+#include "../../../../../mame/src/lib/srcdbg/srcdbg_api.h"
 
 /****************************************************************************
  * CODE SECTION 
@@ -2163,7 +2163,7 @@ void target_finalize( Environment * _environment ) {
         }            
 
 		mame_srcdbg_simp_open_new(_environment->mameDebugInfoFileName, &mdi);
-		unsigned short file_idx;
+		unsigned int file_idx;
 		mame_srcdbg_simp_add_source_file_path(mdi, _environment->sourceFileName, &file_idx);
         
         while( !feof(fileAsm) && !feof(fileListing))
